@@ -1,8 +1,6 @@
-Here’s a README template based on the details you provided. Feel free to customize any part of it further if needed.
 
----
 
-# 🌍 NSC Coalla AI 🌍
+# 🌍🧙space-coalla-v1 🧙🌍
 
 ![C](https://img.shields.io/badge/C-%2300599C.svg?style=for-the-badge&logo=c&logoColor=white)
 ![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=java&logoColor=white)
