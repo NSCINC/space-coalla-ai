@@ -1,208 +1,187 @@
-import sqlite3
-from openpyxl import load_workbook
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-# Estrutura para armazenar os dados dos investidores
-class Investor:
-    def __init__(self, name, email, phone_number):
-        self.name = name
-        self.email = email
-        self.phone_number = phone_number
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
 
-# Estrutura para armazenar os dados dos ativos
-class Asset:
-    def __init__(self, asset_name, asset_type, total_slots, annual_return):
-        self.asset_name = asset_name
-        self.asset_type = asset_type
-        self.total_slots = total_slots
-        self.annual_return = annual_return
+class Investor {
+    private String name;
+    private String email;
+    private String phoneNumber;
 
-# Estrutura para armazenar o investimento
-class Investment:
-    def __init__(self, investor_id, asset_id, invested_amount):
-        self.investor_id = investor_id
-        self.asset_id = asset_id
-        self.invested_amount = invested_amount
+    public Investor(String name, String email, String phoneNumber) {
+        this.name = name;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+    }
 
-# Função para inicializar o banco de dados e criar tabelas
-def initialize_database():
-    conn = sqlite3.connect('investments.db')
-    cursor = conn.cursor()
+    public String getName() {
+        return name;
+    }
 
-    # Criação das tabelas
-    cursor.execute('''CREATE TABLE IF NOT EXISTS Investors (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        name TEXT NOT NULL,
-                        email TEXT NOT NULL,
-                        phone_number TEXT NOT NULL);''')
+    public String getEmail() {
+        return email;
+    }
 
-    cursor.execute('''CREATE TABLE IF NOT EXISTS Assets (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        asset_name TEXT NOT NULL,
-                        asset_type TEXT NOT NULL,
-                        total_slots INTEGER NOT NULL,
-                        annual_return REAL NOT NULL);''')
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+}
 
-    cursor.execute('''CREATE TABLE IF NOT EXISTS Investments (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        investor_id INTEGER,
-                        asset_id INTEGER,
-                        invested_amount REAL,
-                        FOREIGN KEY(investor_id) REFERENCES Investors(id),
-                        FOREIGN KEY(asset_id) REFERENCES Assets(id));''')
+class Asset {
+    private String assetName;
+    private String assetType;
+    private int totalSlots;
+    private double annualReturn;
 
-    conn.commit()
-    conn.close()
+    public Asset(String assetName, String assetType, int totalSlots, double annualReturn) {
+        this.assetName = assetName;
+        this.assetType = assetType;
+        this.totalSlots = totalSlots;
+        this.annualReturn = annualReturn;
+    }
 
-# Função para inserir investidores
-def insert_investor(investor):
-    conn = sqlite3.connect('investments.db')
-    cursor = conn.cursor()
+    public String getAssetName() {
+        return assetName;
+    }
 
-    cursor.execute('''INSERT INTO Investors (name, email, phone_number)
-                      VALUES (?, ?, ?);''', (investor.name, investor.email, investor.phone_number))
+    public String getAssetType() {
+        return assetType;
+    }
 
-    conn.commit()
-    conn.close()
+    public int getTotalSlots() {
+        return totalSlots;
+    }
 
-# Função para inserir ativos
-def insert_asset(asset):
-    conn = sqlite3.connect('investments.db')
-    cursor = conn.cursor()
+    public double getAnnualReturn() {
+        return annualReturn;
+    }
+}
 
-    cursor.execute('''INSERT INTO Assets (asset_name, asset_type, total_slots, annual_return)
-                      VALUES (?, ?, ?, ?);''', (asset.asset_name, asset.asset_type, asset.total_slots, asset.annual_return))
+class Investment {
+    private int investorId;
+    private int assetId;
+    private double investedAmount;
 
-    conn.commit()
-    conn.close()
+    public Investment(int investorId, int assetId, double investedAmount) {
+        this.investorId = investorId;
+        this.assetId = assetId;
+        this.investedAmount = investedAmount;
+    }
 
-# Função para inserir investimentos
-def insert_investment(investment):
-    conn = sqlite3.connect('investments.db')
-    cursor = conn.cursor()
+    public int getInvestorId() {
+        return investorId;
+    }
 
-    cursor.execute('''INSERT INTO Investments (investor_id, asset_id, invested_amount)
-                      VALUES (?, ?, ?);''', (investment.investor_id, investment.asset_id, investment.invested_amount))
+    public int getAssetId() {
+        return assetId;
+    }
 
-    conn.commit()
-    conn.close()
+    public double getInvestedAmount() {
+        return investedAmount;
+    }
+}
 
-# Função para ler dados de Excel e inserir no banco de dados
-def read_excel_data(file_path):
-    workbook = load_workbook(filename=file_path)
-    sheet = workbook.active
+public class InvestmentManager {
 
-    # Exemplo: Lê os dados do Excel e insere os investidores no banco
-    for row in sheet.iter_rows(min_row=2, values_only=True):
-        # Considera que as colunas do Excel seguem a ordem: Nome, Email, Telefone
-        name, email, phone_number = row
-        investor = Investor(name, email, phone_number)
-        insert_investor(investor)
+    // Função para inicializar o banco de dados e criar tabelas
+    public static void initializeDatabase() throws SQLException {
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:investments.db")) {
+            Statement stmt = conn.createStatement();
 
-# Exemplo de inicialização do banco e inserção de dados do Excel
-if __name__ == '__main__':
-    initialize_database()
-    read_excel_data('investors_data.xlsx')  # Insira o caminho correto do seu arquivo Excel
-import sqlite3
-from openpyxl import load_workbook
+            // Criação das tabelas
+            stmt.execute("CREATE TABLE IF NOT EXISTS Investors (" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "name TEXT NOT NULL, " +
+                    "email TEXT NOT NULL, " +
+                    "phone_number TEXT NOT NULL);");
 
-# Estrutura para armazenar os dados dos investidores
-class Investor:
-    def __init__(self, name, email, phone_number):
-        self.name = name
-        self.email = email
-        self.phone_number = phone_number
+            stmt.execute("CREATE TABLE IF NOT EXISTS Assets (" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "asset_name TEXT NOT NULL, " +
+                    "asset_type TEXT NOT NULL, " +
+                    "total_slots INTEGER NOT NULL, " +
+                    "annual_return REAL NOT NULL);");
 
-# Estrutura para armazenar os dados dos ativos
-class Asset:
-    def __init__(self, asset_name, asset_type, total_slots, annual_return):
-        self.asset_name = asset_name
-        self.asset_type = asset_type
-        self.total_slots = total_slots
-        self.annual_return = annual_return
+            stmt.execute("CREATE TABLE IF NOT EXISTS Investments (" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "investor_id INTEGER, " +
+                    "asset_id INTEGER, " +
+                    "invested_amount REAL, " +
+                    "FOREIGN KEY(investor_id) REFERENCES Investors(id), " +
+                    "FOREIGN KEY(asset_id) REFERENCES Assets(id));");
+        }
+    }
 
-# Estrutura para armazenar o investimento
-class Investment:
-    def __init__(self, investor_id, asset_id, invested_amount):
-        self.investor_id = investor_id
-        self.asset_id = asset_id
-        self.invested_amount = invested_amount
+    // Função para inserir investidores
+    public static void insertInvestor(Investor investor) throws SQLException {
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:investments.db")) {
+            String query = "INSERT INTO Investors (name, email, phone_number) VALUES (?, ?, ?)";
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt.setString(1, investor.getName());
+            pstmt.setString(2, investor.getEmail());
+            pstmt.setString(3, investor.getPhoneNumber());
+            pstmt.executeUpdate();
+        }
+    }
 
-# Função para inicializar o banco de dados e criar tabelas
-def initialize_database():
-    conn = sqlite3.connect('investments.db')
-    cursor = conn.cursor()
+    // Função para inserir ativos
+    public static void insertAsset(Asset asset) throws SQLException {
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:investments.db")) {
+            String query = "INSERT INTO Assets (asset_name, asset_type, total_slots, annual_return) VALUES (?, ?, ?, ?)";
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt.setString(1, asset.getAssetName());
+            pstmt.setString(2, asset.getAssetType());
+            pstmt.setInt(3, asset.getTotalSlots());
+            pstmt.setDouble(4, asset.getAnnualReturn());
+            pstmt.executeUpdate();
+        }
+    }
 
-    # Criação das tabelas
-    cursor.execute('''CREATE TABLE IF NOT EXISTS Investors (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        name TEXT NOT NULL,
-                        email TEXT NOT NULL,
-                        phone_number TEXT NOT NULL);''')
+    // Função para inserir investimentos
+    public static void insertInvestment(Investment investment) throws SQLException {
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:investments.db")) {
+            String query = "INSERT INTO Investments (investor_id, asset_id, invested_amount) VALUES (?, ?, ?)";
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt.setInt(1, investment.getInvestorId());
+            pstmt.setInt(2, investment.getAssetId());
+            pstmt.setDouble(3, investment.getInvestedAmount());
+            pstmt.executeUpdate();
+        }
+    }
 
-    cursor.execute('''CREATE TABLE IF NOT EXISTS Assets (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        asset_name TEXT NOT NULL,
-                        asset_type TEXT NOT NULL,
-                        total_slots INTEGER NOT NULL,
-                        annual_return REAL NOT NULL);''')
+    // Função para ler dados de Excel e inserir no banco de dados
+    public static void readExcelData(String filePath) throws IOException, SQLException {
+        try (FileInputStream fis = new FileInputStream(filePath);
+             XSSFWorkbook workbook = new XSSFWorkbook(fis)) {
 
-    cursor.execute('''CREATE TABLE IF NOT EXISTS Investments (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        investor_id INTEGER,
-                        asset_id INTEGER,
-                        invested_amount REAL,
-                        FOREIGN KEY(investor_id) REFERENCES Investors(id),
-                        FOREIGN KEY(asset_id) REFERENCES Assets(id));''')
+            Sheet sheet = workbook.getSheetAt(0);
 
-    conn.commit()
-    conn.close()
+            for (Row row : sheet) {
+                if (row.getRowNum() == 0) continue; // Pular a primeira linha (cabeçalho)
 
-# Função para inserir investidores
-def insert_investor(investor):
-    conn = sqlite3.connect('investments.db')
-    cursor = conn.cursor()
+                String name = row.getCell(0).getStringCellValue();
+                String email = row.getCell(1).getStringCellValue();
+                String phoneNumber = row.getCell(2).getStringCellValue();
 
-    cursor.execute('''INSERT INTO Investors (name, email, phone_number)
-                      VALUES (?, ?, ?);''', (investor.name, investor.email, investor.phone_number))
+                Investor investor = new Investor(name, email, phoneNumber);
+                insertInvestor(investor);
+            }
+        }
+    }
 
-    conn.commit()
-    conn.close()
-
-# Função para inserir ativos
-def insert_asset(asset):
-    conn = sqlite3.connect('investments.db')
-    cursor = conn.cursor()
-
-    cursor.execute('''INSERT INTO Assets (asset_name, asset_type, total_slots, annual_return)
-                      VALUES (?, ?, ?, ?);''', (asset.asset_name, asset.asset_type, asset.total_slots, asset.annual_return))
-
-    conn.commit()
-    conn.close()
-
-# Função para inserir investimentos
-def insert_investment(investment):
-    conn = sqlite3.connect('investments.db')
-    cursor = conn.cursor()
-
-    cursor.execute('''INSERT INTO Investments (investor_id, asset_id, invested_amount)
-                      VALUES (?, ?, ?);''', (investment.investor_id, investment.asset_id, investment.invested_amount))
-
-    conn.commit()
-    conn.close()
-
-# Função para ler dados de Excel e inserir no banco de dados
-def read_excel_data(file_path):
-    workbook = load_workbook(filename=file_path)
-    sheet = workbook.active
-
-    # Exemplo: Lê os dados do Excel e insere os investidores no banco
-    for row in sheet.iter_rows(min_row=2, values_only=True):
-        # Considera que as colunas do Excel seguem a ordem: Nome, Email, Telefone
-        name, email, phone_number = row
-        investor = Investor(name, email, phone_number)
-        insert_investor(investor)
-
-# Exemplo de inicialização do banco e inserção de dados do Excel
-if __name__ == '__main__':
-    initialize_database()
-    read_excel_data('investors_data.xlsx')  # Insira o caminho correto do seu arquivo Excel
+    public static void main(String[] args) {
+        try {
+            initializeDatabase();
+            readExcelData("investors_data.xlsx");  // Coloque o caminho do seu arquivo Excel
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
